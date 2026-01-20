@@ -25,6 +25,26 @@ execution_agent = Agent(
     verbose=True
 )
 
+# 3. REVIEW AGENT
+reviewer_agent = Agent(
+    role="Review Agent",
+    goal="Review outputs for clarity and conciseness",
+    backstory=(
+        "You improve clarity by removing fluff while preserving important details."
+    ),
+    verbose=True,
+)
+
+# 4. FORMATTING AGENT
+formatter_agent = Agent(
+    role="Formatting Agent",
+    goal="Format content into clean sections with headings and bullet points",
+    backstory=(
+        "You are an expert technical editor who produces well-structured output."
+    ),
+    verbose=True,
+)
+
 # TASK 1: TASK PLANNING
 planning_task = Task(
     description=(
@@ -59,6 +79,38 @@ execution_task = Task(
         "Three clearly seperated sections: Agenda, Checklist, Timeline."
     ),
     agent=execution_agent
+)
+
+#Task 3
+review_task = Task(
+    description=(
+        "Review the task execution output and improve clarity.\n"
+        "Rules:\n"
+        "- Remove unnecessary explanations\n"
+        "- Keep content concise\n"
+        "- Preserve important details"
+    ),
+    expected_output=(
+        "A refined version of the execution output with improved clarity."
+    ),
+    agent=reviewer_agent
+)
+
+# Task 4 : Formating agent
+formating_task = Task(
+    description=(
+        "Format the reviewed content into EXACTLY three sections:\n"
+        "1. AGENDA\n"
+        "2. CHECKLIST\n"
+        "3. TIMELINE\n\n"
+        "Rules:\n"
+        "- Use clear headings\n"
+        "- Use bullet points\n"
+    ),
+        expected_output=(
+        "Cleanly formatted output with AGENDA, CHECKLIST, and TIMELINE sections."
+    ),
+    agent=formatter_agent
 )
 
 # CREW SETUP
