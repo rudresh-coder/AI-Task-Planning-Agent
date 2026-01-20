@@ -3,59 +3,60 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# 1.Planner Agent
+# 1. PLANNER AGENT
 planner_agent = Agent(
-    role="Research Planner Agent",
-    goal="Break a high-level goal into actionable tasks",
+    role="Task Planning Agent",
+    goal="Break a high-level user goal into clear, actionable tasks",
     backstory=(
-        "You are an expert research planner."
-        "You decide what subtopics must be researched to fully understand a topic."
+        "You are an expert task planner. "
+        "You take a broad goal and decompose it into logical, executable steps."
     ),
     verbose=True
 )
 
-# 2. Research Agent
-research_agent = Agent(
-    role="Research Agent",
-    goal="Research a topic and produce a clear summary",
+# 2. EXECUTION AGENT
+execution_agent = Agent(
+    role="Task Execution Agent",
+    goal="Execute planned tasks and generate meaningful outputs",
     backstory=(
-        "You are a research expert who gathers information and explains it clearly."
+        "You are responsible for executing tasks step-by-step "
+        "and producing clear, useful results."
     ),
     verbose=True
 )
 
-#Task 1: Planing Task
+# TASK 1: TASK PLANNING
 planning_task = Task(
     description=(
-        "Given the research topic: 'Agentic AI in Education',"
-        "list the key subtopics that should be researched."
+        "Given the goal: 'Plan and execute a one-day AI workshop for MCA students', "
+        "break it down into clear, actionable tasks."
     ),
     expected_output=(
-        "A numbered list of research subtopics."
+        "A numbered list of well-defined tasks required to achieve the goal."
     ),
     agent=planner_agent
 )
 
-#Task 2: Research Task
-research_task = Task(
+# TASK 2: TASK EXECUTION
+execution_task = Task(
     description=(
-        "Research the topic 'Agentic AI Education' based on the planned subtopics "
-        "and provide a concise summary."
+        "Execute the planned tasks for organizing a one-day AI workshop. "
+        "Generate structured outputs such as agenda, checklist, and timeline."
     ),
     expected_output=(
-        "A structured summary explaining the topic clearly."
+        "A structured execution output including agenda, checklist, and timeline."
     ),
-    agent=research_agent
+    agent=execution_agent
 )
 
-#Crew Setup
+# CREW SETUP
 crew = Crew(
-    agents=[planner_agent, research_agent],
-    tasks=[planning_task, research_task],
+    agents=[planner_agent, execution_agent],
+    tasks=[planning_task, execution_task],
     verbose=True
 )
 
-#Run the crew
+# RUN THE CREW
 result = crew.kickoff()
 
 print("\n================ FINAL OUTPUT ================\n")
