@@ -29,10 +29,15 @@ execution_agent = Agent(
 planning_task = Task(
     description=(
         "Given the goal: 'Plan and execute a one-day AI workshop for MCA students', "
-        "break it down into clear, actionable tasks."
+        "create a SIMPLE task plan. \n\n"
+        "Rules:\n"
+        "- Return ONLY a numbered list\n"
+        "- Each item must be a single clear task\n"
+        "- DO NOT use sub-points or explanations\n"
+        "- Keep it concise (6-8 tasks max)"
     ),
     expected_output=(
-        "A numbered list of well-defined tasks required to achieve the goal."
+        "A clean numbered list of tasks with no sub-points."
     ),
     agent=planner_agent
 )
@@ -40,11 +45,18 @@ planning_task = Task(
 # TASK 2: TASK EXECUTION
 execution_task = Task(
     description=(
-        "Execute the planned tasks for organizing a one-day AI workshop. "
-        "Generate structured outputs such as agenda, checklist, and timeline."
+        "Execute the planned tasks for organizing a one-day AI workshop.\n\n"
+        "Rules:\n"
+        "- Produce output in EXACTLY three sections:\n"
+        " 1. Agenda: A detailed agenda for the workshop\n"
+        " 2. Checklist: A checklist of items to prepare\n"
+        " 3. Timeline: A timeline for the day's events\n"
+        "- Use clear headings for each section\n"
+        "- use bullet points where appropriate\n"
+        "- Keep content practical and concise"
     ),
     expected_output=(
-        "A structured execution output including agenda, checklist, and timeline."
+        "Three clearly seperated sections: Agenda, Checklist, Timeline."
     ),
     agent=execution_agent
 )
