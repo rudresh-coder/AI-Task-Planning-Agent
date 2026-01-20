@@ -65,18 +65,20 @@ planning_task = Task(
 # TASK 2: TASK EXECUTION
 execution_task = Task(
     description=(
-        "Execute the planned tasks for organizing a one-day AI workshop.\n\n"
+        "Using the task plan created previously, execute the tasks for organizing "
+        "a one-day AI workshop.\n\n"
         "Rules:\n"
+        "- Base your work ONLY on the planned task list\n"
         "- Produce output in EXACTLY three sections:\n"
-        " 1. Agenda: A detailed agenda for the workshop\n"
-        " 2. Checklist: A checklist of items to prepare\n"
-        " 3. Timeline: A timeline for the day's events\n"
-        "- Use clear headings for each section\n"
-        "- use bullet points where appropriate\n"
+        " 1. AGENDA\n"
+        " 2. CHECKLIST\n"
+        " 3. TIMELINE\n"
+        "- Use clear headings\n"
+        "- Use bullet points\n"
         "- Keep content practical and concise"
     ),
     expected_output=(
-        "Three clearly seperated sections: Agenda, Checklist, Timeline."
+        "Three clearly separated sections: AGENDA, CHECKLIST, TIMELINE."
     ),
     agent=execution_agent
 )
@@ -84,39 +86,49 @@ execution_task = Task(
 #Task 3
 review_task = Task(
     description=(
-        "Review the task execution output and improve clarity.\n"
+        "Review the execution output produced previously.\n\n"
         "Rules:\n"
         "- Remove unnecessary explanations\n"
-        "- Keep content concise\n"
-        "- Preserve important details"
+        "- Improve clarity and structure\n"
+        "- Preserve important details\n"
+        "- Do NOT add new content"
     ),
     expected_output=(
-        "A refined version of the execution output with improved clarity."
+        "A refined and cleaner version of the execution output."
     ),
     agent=reviewer_agent
 )
 
 # Task 4 : Formating agent
-formating_task = Task(
+formatting_task = Task(
     description=(
-        "Format the reviewed content into EXACTLY three sections:\n"
+        "Format the reviewed content produced previously into EXACTLY three sections:\n"
         "1. AGENDA\n"
         "2. CHECKLIST\n"
         "3. TIMELINE\n\n"
         "Rules:\n"
-        "- Use clear headings\n"
+        "- Use clear uppercase headings\n"
         "- Use bullet points\n"
+        "- Do NOT include explanations outside these sections"
     ),
         expected_output=(
-        "Cleanly formatted output with AGENDA, CHECKLIST, and TIMELINE sections."
+        "Clean, final output with AGENDA, CHECKLIST, and TIMELINE sections."
     ),
     agent=formatter_agent
 )
 
 # CREW SETUP
 crew = Crew(
-    agents=[planner_agent, execution_agent],
-    tasks=[planning_task, execution_task],
+    agents=[planner_agent,
+            execution_agent,
+            reviewer_agent,
+            formatter_agent
+            ],
+    tasks=[planning_task,
+           execution_task,
+           review_task,
+           formatting_task
+           ],
     verbose=True
 )
 
