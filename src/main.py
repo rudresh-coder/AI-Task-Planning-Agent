@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+#user input
+user_goal = input("\nEnter your goal for the AI Planning & Execution Agent:\n> ")
+
 # 1. PLANNER AGENT
 planner_agent = Agent(
     role="Task Planning Agent",
@@ -48,13 +51,13 @@ formatter_agent = Agent(
 # TASK 1: TASK PLANNING
 planning_task = Task(
     description=(
-        "Given the goal: 'Plan and execute a one-day AI workshop for MCA students', "
-        "create a SIMPLE task plan. \n\n"
+        f"Given the user goal: '{user_goal}', "
+        "create a SIMPLE task plan.\n\n"
         "Rules:\n"
         "- Return ONLY a numbered list\n"
         "- Each item must be a single clear task\n"
         "- DO NOT use sub-points or explanations\n"
-        "- Keep it concise (6-8 tasks max)"
+        "- Keep it concise (6–8 tasks max)"
     ),
     expected_output=(
         "A clean numbered list of tasks with no sub-points."
@@ -65,10 +68,9 @@ planning_task = Task(
 # TASK 2: TASK EXECUTION
 execution_task = Task(
     description=(
-        "Using the task plan created previously, execute the tasks for organizing "
-        "a one-day AI workshop.\n\n"
+        f"Using the task plan created for the goal '{user_goal}', "
+        "execute the tasks.\n\n"
         "Rules:\n"
-        "- Base your work ONLY on the planned task list\n"
         "- Produce output in EXACTLY three sections:\n"
         " 1. AGENDA\n"
         " 2. CHECKLIST\n"
@@ -82,6 +84,7 @@ execution_task = Task(
     ),
     agent=execution_agent
 )
+
 
 #Task 3
 review_task = Task(
