@@ -69,21 +69,18 @@ planning_task = Task(
 # TASK 2: TASK EXECUTION
 execution_task = Task(
     description=(
-        f"Using the task plan created for the goal '{user_goal}', "
-        "execute the tasks.\n\n"
+        f"For the goal '{user_goal}', generate content for a plan.\n\n"
+        "Provide the following items (content only):\n"
+        "- Agenda items\n"
+        "- Checklist items\n"
+        "- Timeline items\n\n"
         "Rules:\n"
-        "- Produce output in EXACTLY three sections:\n"
-        " 1. AGENDA\n"
-        " 2. CHECKLIST\n"
-        " 3. TIMELINE\n"
-        "- Use clear headings\n"
-        "- Use bullet points\n"
-        "- Keep content practical and concise"
+        "- Do NOT format as JSON\n"
+        "- Do NOT use markdown headings\n"
+        "- Keep items short and actionable"
     ),
-    expected_output=(
-        "Three clearly separated sections: AGENDA, CHECKLIST, TIMELINE."
-    ),
-    agent=execution_agent
+    expected_output="Plain text containing agenda, checklist, and timeline items.",
+    agent=execution_agent,
 )
 
 
@@ -108,18 +105,22 @@ review_task = Task(
 formatting_task = Task(
     description=(
         "Convert the reviewed content into ONLY valid JSON.\n\n"
-        "IMPORTANT:\n"
+        "HARD RULES:\n"
         "- Output MUST start with '{' and end with '}'\n"
-        "- Do NOT wrap in ```json fences\n"
-        "- Do NOT output any extra text\n\n"
-        "Schema:\n"
+        "- No ``` fences, no extra text\n"
+        "- NO objects, NO nested arrays\n"
+        "- Values must be ARRAYS OF STRINGS ONLY\n\n"
+        "Exact schema:\n"
         "{\n"
-        '  "agenda": [string],\n'
-        '  "checklist": [string],\n'
-        '  "timeline": [string]\n'
-        "}\n"
+        '  "agenda": ["string", "string"],\n'
+        '  "checklist": ["string", "string"],\n'
+        '  "timeline": ["string", "string"]\n'
+        "}\n\n"
+        "Formatting rules:\n"
+        "- checklist strings should be like 'Category: item'\n"
+        "- timeline strings should include a time/period prefix"
     ),
-    expected_output="Valid JSON only with keys agenda, checklist, timeline.",
+    expected_output='{"agenda":[...],"checklist":[...],"timeline":[...]}',
     agent=formatter_agent,
 )
 
@@ -142,15 +143,32 @@ crew = Crew(
 result = crew.kickoff()
 
 print("\n================ FINAL OUTPUT ================\n")
+
+raw = str(result).strip()
+
+if raw.startswith("```"):
+    lines = raw.splitlines()
+    # drop first line like ``` or ```json
+    lines = lines[1:]
+    # drop last fence line if present
+    if lines and lines[-1].strip() == "```":
+        lines = lines[:-1]
+    raw = "\n".join(lines).strip()
+
 try:
-    raw = str(result).strip()
-
-    if raw.startswith("```"):
-        raw = raw.split("\n", 1)[1]
-        if raw.endswith("```"):
-            raw = raw.rsplit("\n", 1)[0]
-
     data = json.loads(raw)
-    print(json.dumps(data, indent=2, ensure_ascii=False))
 except json.JSONDecodeError:
     print(result)
+    raise SystemExit(1)
+
+# validate schema strictly
+if (
+    not isinstance(data, dict)
+    or set(data.keys()) != {"agenda", "checklist", "timeline"}
+    or not all(isinstance(data[k], list) and all(isinstance(x, str) for x in data[k]) for k in data)
+):
+    print("Invalid JSON schema returned:")
+    print(json.dumps(data, indent=2, ensure_ascii=False))
+    raise SystemExit(1)
+
+print(json.dumps(data, indent=2, ensure_ascii=False))
