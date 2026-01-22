@@ -95,7 +95,7 @@ review_task = Task(
         "- Remove unnecessary explanations\n"
         "- Improve clarity and structure\n"
         "- Preserve important details\n"
-        "- Do NOT add new content"
+        "- Do NOT add new content\n"
         "- Do NOT try to enforce any final formatting"
     ),
     expected_output=(
@@ -108,16 +108,16 @@ review_task = Task(
 formatting_task = Task(
     description=(
         "Convert the reviewed content into ONLY valid JSON.\n\n"
-        "Schema (must match exactly):\n"
+        "IMPORTANT:\n"
+        "- Output MUST start with '{' and end with '}'\n"
+        "- Do NOT wrap in ```json fences\n"
+        "- Do NOT output any extra text\n\n"
+        "Schema:\n"
         "{\n"
         '  "agenda": [string],\n'
         '  "checklist": [string],\n'
         '  "timeline": [string]\n'
-        "}\n\n"
-        "Rules:\n"
-        "- Output must be ONLY JSON (no markdown, no commentary)\n"
-        "- Each array item must be a short, clear string\n"
-        "- timeline items should include times when possible (e.g., '09:00-10:00 ...')"
+        "}\n"
     ),
     expected_output="Valid JSON only with keys agenda, checklist, timeline.",
     agent=formatter_agent,
@@ -143,7 +143,14 @@ result = crew.kickoff()
 
 print("\n================ FINAL OUTPUT ================\n")
 try:
-    data = json.loads(str(result))
+    raw = str(result).strip()
+
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[1]
+        if raw.endswith("```"):
+            raw = raw.rsplit("\n", 1)[0]
+
+    data = json.loads(raw)
     print(json.dumps(data, indent=2, ensure_ascii=False))
 except json.JSONDecodeError:
     print(result)
