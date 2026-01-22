@@ -1,3 +1,4 @@
+import json
 from crewai import Agent, Task, Crew
 from dotenv import load_dotenv
 
@@ -95,6 +96,7 @@ review_task = Task(
         "- Improve clarity and structure\n"
         "- Preserve important details\n"
         "- Do NOT add new content"
+        "- Do NOT try to enforce any final formatting"
     ),
     expected_output=(
         "A refined and cleaner version of the execution output."
@@ -105,19 +107,20 @@ review_task = Task(
 # Task 4 : Formating agent
 formatting_task = Task(
     description=(
-        "Format the reviewed content produced previously into EXACTLY three sections:\n"
-        "1. AGENDA\n"
-        "2. CHECKLIST\n"
-        "3. TIMELINE\n\n"
+        "Convert the reviewed content into ONLY valid JSON.\n\n"
+        "Schema (must match exactly):\n"
+        "{\n"
+        '  "agenda": [string],\n'
+        '  "checklist": [string],\n'
+        '  "timeline": [string]\n'
+        "}\n\n"
         "Rules:\n"
-        "- Use clear uppercase headings\n"
-        "- Use bullet points\n"
-        "- Do NOT include explanations outside these sections"
+        "- Output must be ONLY JSON (no markdown, no commentary)\n"
+        "- Each array item must be a short, clear string\n"
+        "- timeline items should include times when possible (e.g., '09:00-10:00 ...')"
     ),
-        expected_output=(
-        "Clean, final output with AGENDA, CHECKLIST, and TIMELINE sections."
-    ),
-    agent=formatter_agent
+    expected_output="Valid JSON only with keys agenda, checklist, timeline.",
+    agent=formatter_agent,
 )
 
 # CREW SETUP
@@ -139,4 +142,8 @@ crew = Crew(
 result = crew.kickoff()
 
 print("\n================ FINAL OUTPUT ================\n")
-print(result)
+try:
+    data = json.loads(str(result))
+    print(json.dumps(data, indent=2, ensure_ascii=False))
+except json.JSONDecodeError:
+    print(result)
