@@ -21,6 +21,8 @@ def _strip_code_fence(raw: str) -> str:
 
 
 def generate_plan(user_goal: str) -> dict:
+    from crewai import Agent, Task, Crew 
+
     llm_model = os.getenv("MODEL", "groq/llama-3.1-8b-instant")
 
     planner_agent = Agent(
