@@ -1,3 +1,7 @@
+## Live Demo
+
+🔗 **Website:** [https://ai-task-planning-agent.streamlit.app/](https://ai-task-planning-agent.streamlit.app/)
+
 # AI Task Planner Agent
 
 A lightweight AI agent app that converts a high-level goal into a clean, structured execution plan with three outputs:
