@@ -80,24 +80,27 @@ st.markdown(
         position: absolute;
         inset: -20%;
         background-repeat: repeat;
+        will-change: transform, opacity, filter;
     }
 
     .bg-particles::before {
         background-image:
-            radial-gradient(circle, rgba(125, 211, 252, 0.40) 1px, transparent 1.8px),
-            radial-gradient(circle, rgba(196, 181, 253, 0.30) 1px, transparent 2px);
+            radial-gradient(circle, rgba(125, 211, 252, 0.65) 1.2px, transparent 2.2px),
+            radial-gradient(circle, rgba(196, 181, 253, 0.55) 1.1px, transparent 2.1px);
         background-size: 130px 130px, 190px 190px;
         background-position: 10px 20px, 80px 120px;
-        animation: particleDriftA 26s linear infinite, twinkleA 4.8s ease-in-out infinite;
+        animation: particleDriftA 26s linear infinite, twinkleA 3.2s ease-in-out infinite;
+        filter: drop-shadow(0 0 4px rgba(125, 211, 252, 0.35));
     }
 
     .bg-particles::after {
         background-image:
-            radial-gradient(circle, rgba(244, 114, 182, 0.24) 1px, transparent 2px),
-            radial-gradient(circle, rgba(103, 232, 249, 0.32) 1px, transparent 1.8px);
+            radial-gradient(circle, rgba(244, 114, 182, 0.50) 1.2px, transparent 2.2px),
+            radial-gradient(circle, rgba(103, 232, 249, 0.60) 1.1px, transparent 2.0px);
         background-size: 170px 170px, 230px 230px;
         background-position: 50px 90px, 140px 40px;
-        animation: particleDriftB 38s linear infinite, twinkleB 6.2s ease-in-out infinite;
+        animation: particleDriftB 38s linear infinite, twinkleB 4.1s ease-in-out infinite;
+        filter: drop-shadow(0 0 5px rgba(167, 139, 250, 0.28));
     }
 
     @keyframes scanSweep {
@@ -128,13 +131,13 @@ st.markdown(
     }
 
     @keyframes twinkleA {
-        0%, 100% { opacity: 0.75; }
-        50% { opacity: 1; }
+        0%, 100% { opacity: 0.25; }
+        50%      { opacity: 1.00; }
     }
 
     @keyframes twinkleB {
-        0%, 100% { opacity: 0.55; }
-        50% { opacity: 0.9; }
+        0%, 100% { opacity: 0.18; }
+        50%      { opacity: 0.92; }
     }
 
     .flow-title {
