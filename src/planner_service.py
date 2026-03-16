@@ -137,7 +137,14 @@ def generate_plan(user_goal: str) -> dict:
         verbose=True,
     )
 
-    result = crew.kickoff()
+    try:
+        result = crew.kickoff()
+    except Exception as exc:
+        raise RuntimeError(
+            "Failed to execute planning workflow due to an API/service issue. "
+            "Please try again in a moment."
+        ) from exc
+
     raw = _strip_code_fence(str(result))
 
     try:

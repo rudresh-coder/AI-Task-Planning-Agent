@@ -240,8 +240,13 @@ if st.button("Generate Plan", type="primary"):
         with st.spinner("Generating your plan..."):
             try:
                 plan = generate_plan(user_goal.strip())
-            except Exception as exc:
-                st.error(f"Failed to generate plan: {exc}")
+            except RuntimeError as exc:
+                st.error(str(exc))
+            except Exception:
+                st.error(
+                    "Something went wrong while generating the plan. "
+                    "Please try again."
+                )
             else:
                 st.success("Plan generated")
 
