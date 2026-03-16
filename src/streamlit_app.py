@@ -4,22 +4,7 @@ import html
 import streamlit as st
 from planner_service import generate_plan
 
-st.set_page_config(page_title="AI Task Planner Agent", page_icon="✅", layout="centered")
-
-def _type_line(placeholder, css_class: str, text: str, delay: float = 0.035) -> None:
-    typed = ""
-    for ch in text:
-        typed += ch
-        placeholder.markdown(
-            f"<div class='{css_class}'>{html.escape(typed)}</div>",
-            unsafe_allow_html=True,
-        )
-        time.sleep(delay)
-
-    placeholder.markdown(
-        f"<div class='{css_class}'>{html.escape(text)}</div>",
-        unsafe_allow_html=True,
-    )
+st.set_page_config(page_title="AI Task Planner Agent", layout="centered")
 
 st.markdown(
     """
@@ -33,6 +18,123 @@ st.markdown(
     .stApp {
         background: radial-gradient(circle at top left, #0f172a, #111827 35%, #020617 100%);
         color: #e5e7eb;
+        overflow: hidden;
+    }
+
+    /* Keep app content above animated background layers */
+    .stApp > *:not(.bg-grid):not(.bg-scan):not(.bg-particles) {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Layer 1: Futuristic grid */
+    .bg-grid {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+            linear-gradient(rgba(56, 189, 248, 0.11) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(56, 189, 248, 0.11) 1px, transparent 1px);
+        background-size: 48px 48px, 48px 48px;
+        mask-image: radial-gradient(circle at 50% 35%, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.35) 72%, rgba(0, 0, 0, 0));
+        -webkit-mask-image: radial-gradient(circle at 50% 35%, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.35) 72%, rgba(0, 0, 0, 0));
+        opacity: 0.5;
+        transform-origin: center top;
+        transform: perspective(900px) rotateX(58deg) scale(1.2);
+        animation: gridDrift 26s linear infinite;
+    }
+
+    /* Layer 2: Scanning glow line */
+    .bg-scan {
+        position: fixed;
+        inset: -30% 0;
+        z-index: 0;
+        pointer-events: none;
+        background: linear-gradient(
+            to bottom,
+            transparent 40%,
+            rgba(34, 211, 238, 0.0) 47%,
+            rgba(34, 211, 238, 0.25) 50%,
+            rgba(167, 139, 250, 0.18) 52%,
+            rgba(34, 211, 238, 0.0) 56%,
+            transparent 65%
+        );
+        transform: translateY(-120%);
+        animation: scanSweep 7.5s linear infinite;
+        filter: blur(0.3px);
+    }
+
+    /* Layer 3: Floating particles */
+    .bg-particles {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .bg-particles::before,
+    .bg-particles::after {
+        content: "";
+        position: absolute;
+        inset: -20%;
+        background-repeat: repeat;
+    }
+
+    .bg-particles::before {
+        background-image:
+            radial-gradient(circle, rgba(125, 211, 252, 0.40) 1px, transparent 1.8px),
+            radial-gradient(circle, rgba(196, 181, 253, 0.30) 1px, transparent 2px);
+        background-size: 130px 130px, 190px 190px;
+        background-position: 10px 20px, 80px 120px;
+        animation: particleDriftA 26s linear infinite, twinkleA 4.8s ease-in-out infinite;
+    }
+
+    .bg-particles::after {
+        background-image:
+            radial-gradient(circle, rgba(244, 114, 182, 0.24) 1px, transparent 2px),
+            radial-gradient(circle, rgba(103, 232, 249, 0.32) 1px, transparent 1.8px);
+        background-size: 170px 170px, 230px 230px;
+        background-position: 50px 90px, 140px 40px;
+        animation: particleDriftB 38s linear infinite, twinkleB 6.2s ease-in-out infinite;
+    }
+
+    @keyframes scanSweep {
+        0%   { transform: translateY(-120%); opacity: 0; }
+        8%   { opacity: 1; }
+        55%  { opacity: 1; }
+        100% { transform: translateY(120%); opacity: 0; }
+    }
+
+    @keyframes particleDriftA {
+        0%   { transform: translate3d(0, 0, 0); }
+        100% { transform: translate3d(-120px, -240px, 0); }
+    }
+
+    @keyframes particleDriftB {
+        0%   { transform: translate3d(0, 0, 0); }
+        100% { transform: translate3d(100px, -220px, 0); }
+    }
+
+    @keyframes gridDrift {
+        0%   { background-position: 0 0, 0 0; }
+        100% { background-position: 48px 96px, 96px 48px; }
+    }
+
+    @keyframes ambientShift {
+        0%   { transform: translate3d(-20px, -10px, 0) scale(1); }
+        100% { transform: translate3d(20px, 14px, 0) scale(1.05); }
+    }
+
+    @keyframes twinkleA {
+        0%, 100% { opacity: 0.75; }
+        50% { opacity: 1; }
+    }
+
+    @keyframes twinkleB {
+        0%, 100% { opacity: 0.55; }
+        50% { opacity: 0.9; }
     }
 
     .flow-title {
@@ -204,10 +306,134 @@ st.markdown(
         50% { background-position: 100% 50%; }
         100% { background-position: 0% 50%; }
     }
+
+    /* NEW: Ambient glow layer */
+    .bg-ambient {
+        position: fixed;
+        inset: -20%;
+        z-index: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 15% 20%, rgba(34, 211, 238, 0.14), transparent 35%),
+            radial-gradient(circle at 85% 30%, rgba(167, 139, 250, 0.14), transparent 38%),
+            radial-gradient(circle at 55% 80%, rgba(244, 114, 182, 0.10), transparent 42%);
+        filter: blur(18px);
+        animation: ambientShift 22s ease-in-out infinite alternate;
+    }
+
+    /* ENHANCE: Grid depth + subtle motion */
+    .bg-grid {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+            linear-gradient(rgba(56, 189, 248, 0.11) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(56, 189, 248, 0.11) 1px, transparent 1px);
+        background-size: 48px 48px, 48px 48px;
+        mask-image: radial-gradient(circle at 50% 35%, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.35) 72%, rgba(0, 0, 0, 0));
+        -webkit-mask-image: radial-gradient(circle at 50% 35%, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.35) 72%, rgba(0, 0, 0, 0));
+        opacity: 0.5;
+        transform-origin: center top;
+        transform: perspective(900px) rotateX(58deg) scale(1.2);
+        animation: gridDrift 26s linear infinite;
+        opacity: 0.42;
+    }
+
+    /* ENHANCE: Dual scan beams */
+    .bg-scan::before,
+    .bg-scan::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .bg-scan::before {
+        background: linear-gradient(
+            to bottom,
+            transparent 42%,
+            rgba(34, 211, 238, 0.0) 47%,
+            rgba(34, 211, 238, 0.28) 50%,
+            rgba(34, 211, 238, 0.0) 55%,
+            transparent 62%
+        );
+        animation: scanSweep 7.5s linear infinite;
+    }
+
+    .bg-scan::after {
+        background: linear-gradient(
+            to bottom,
+            transparent 38%,
+            rgba(167, 139, 250, 0.0) 45%,
+            rgba(167, 139, 250, 0.18) 49%,
+            rgba(167, 139, 250, 0.0) 54%,
+            transparent 64%
+        );
+        animation: scanSweep 10.5s linear infinite;
+        mix-blend-mode: screen;
+    }
+
+    /* ENHANCE: Particle twinkle */
+    .bg-particles::before {
+        background-image:
+            radial-gradient(circle, rgba(125, 211, 252, 0.40) 1px, transparent 1.8px),
+            radial-gradient(circle, rgba(196, 181, 253, 0.30) 1px, transparent 2px);
+        background-size: 130px 130px, 190px 190px;
+        background-position: 10px 20px, 80px 120px;
+        animation: particleDriftA 26s linear infinite, twinkleA 4.8s ease-in-out infinite;
+    }
+
+    .bg-particles::after {
+        background-image:
+            radial-gradient(circle, rgba(244, 114, 182, 0.24) 1px, transparent 2px),
+            radial-gradient(circle, rgba(103, 232, 249, 0.32) 1px, transparent 1.8px);
+        background-size: 170px 170px, 230px 230px;
+        background-position: 50px 90px, 140px 40px;
+        animation: particleDriftB 38s linear infinite, twinkleB 6.2s ease-in-out infinite;
+    }
+
+    @keyframes gridDrift {
+        0%   { background-position: 0 0, 0 0; }
+        100% { background-position: 48px 96px, 96px 48px; }
+    }
+
+    @keyframes ambientShift {
+        0%   { transform: translate3d(-20px, -10px, 0) scale(1); }
+        100% { transform: translate3d(20px, 14px, 0) scale(1.05); }
+    }
+
+    @keyframes twinkleA {
+        0%, 100% { opacity: 0.75; }
+        50% { opacity: 1; }
+    }
+
+    @keyframes twinkleB {
+        0%, 100% { opacity: 0.55; }
+        50% { opacity: 0.9; }
+    }
+
+    /* Professional accessibility/perf fallback */
+    @media (prefers-reduced-motion: reduce) {
+        .bg-grid, .bg-scan, .bg-particles::before, .bg-particles::after, .bg-ambient {
+            animation: none !important;
+        }
+    }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+st.markdown(
+    "<div class='bg-ambient'></div><div class='bg-grid'></div><div class='bg-scan'></div><div class='bg-particles'></div>",
+    unsafe_allow_html=True,
+)
+
+def _type_line(placeholder, css_class: str, text: str, delay: float = 0.02) -> None:
+    safe = html.escape(text)
+    for i in range(1, len(safe) + 1):
+        placeholder.markdown(f"<div class='{css_class}'>{safe[:i]}</div>", unsafe_allow_html=True)
+        time.sleep(delay)
 
 title_text = "AI Task Planner Agent"
 sub_text = "Generate structured agenda, checklist, and timeline from your goal."
