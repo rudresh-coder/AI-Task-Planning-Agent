@@ -111,6 +111,18 @@ python src/main.py
 streamlit run src/streamlit_app.py
 ```
 
+## Screenshots
+
+### 1) Home Screen
+<p align="center">
+  <img src="assets/Home.png" alt="Home Screen" width="900" />
+</p>
+
+### 2) Generated Plan
+<p align="center">
+  <img src="assets/GeneratedPlan.png" alt="Home Screen" width="900" />
+</p>
+
 ## License
 
 Licensed under MIT. See [LICENSE](LICENSE).
