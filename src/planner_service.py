@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 import json
-from crewai import Agent, Task, Crew
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
