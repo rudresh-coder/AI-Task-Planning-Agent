@@ -5,6 +5,8 @@ from planner_service import generate_plan
 def main() -> None:
     user_goal = input("\nEnter your goal for the AI Planning & Execution Agent:\n> ")
 
+    print("\nCalling API... please wait.")
+
     try:
         data = generate_plan(user_goal)
     except ValueError as exc:

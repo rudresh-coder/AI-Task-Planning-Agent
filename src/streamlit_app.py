@@ -237,17 +237,23 @@ if st.button("Generate Plan", type="primary"):
     if not user_goal.strip():
         st.warning("Please enter a goal first.")
     else:
+        status_placeholder = st.empty()
+        status_placeholder.info("🔄 Calling API and generating your plan...")
+
         with st.spinner("Generating your plan..."):
             try:
                 plan = generate_plan(user_goal.strip())
             except RuntimeError as exc:
+                status_placeholder.empty()
                 st.error(str(exc))
             except Exception:
+                status_placeholder.empty()
                 st.error(
                     "Something went wrong while generating the plan. "
                     "Please try again."
                 )
             else:
+                status_placeholder.empty()
                 st.success("Plan generated")
 
                 def render_card(title: str, items: list[str]) -> None:
