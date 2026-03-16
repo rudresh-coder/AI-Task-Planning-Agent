@@ -233,46 +233,75 @@ user_goal = st.text_area(
     height=120,
 )
 
-if st.button("Generate Plan", type="primary"):
+if "is_generating" not in st.session_state:
+    st.session_state.is_generating = False
+
+if "last_submit_ts" not in st.session_state:
+    st.session_state.last_submit_ts = 0.0
+
+COOLDOWN_SECONDS = 1.5
+
+generate_clicked = st.button(
+    "Generate Plan",
+    type="primary",
+    disabled=st.session_state.is_generating,
+)
+
+if generate_clicked:
+    now = time.time()
+
+    if st.session_state.is_generating:
+        st.info("A plan is already being generated. Please wait.")
+        st.stop()
+
+    if now - st.session_state.last_submit_ts < COOLDOWN_SECONDS:
+        st.warning("Please wait a moment before submitting again.")
+        st.stop()
+
     if not user_goal.strip():
         st.warning("Please enter a goal first.")
     else:
+        st.session_state.is_generating = True
+        st.session_state.last_submit_ts = now
+
         status_placeholder = st.empty()
         status_placeholder.info("🔄 Calling API and generating your plan...")
 
-        with st.spinner("Generating your plan..."):
-            try:
+        try:
+            with st.spinner("Generating your plan..."):
                 plan = generate_plan(user_goal.strip())
-            except RuntimeError as exc:
-                status_placeholder.empty()
-                st.error(str(exc))
-            except Exception:
-                status_placeholder.empty()
-                st.error(
-                    "Something went wrong while generating the plan. "
-                    "Please try again."
+        except RuntimeError as exc:
+            status_placeholder.empty()
+            st.error(str(exc))
+        except Exception:
+            status_placeholder.empty()
+            st.error(
+                "Something went wrong while generating the plan. "
+                "Please try again."
+            )
+        else:
+            status_placeholder.empty()
+            st.success("Plan generated")
+
+            def render_card(title: str, items: list[str]) -> None:
+                list_html = "".join(f"<li>{html.escape(item)}</li>" for item in items)
+                st.markdown(
+                    (
+                        "<div class='glass-card'>"
+                        f"<div class='card-title'>{html.escape(title)}</div>"
+                        f"<ul class='card-list'>{list_html}</ul>"
+                        "</div>"
+                    ),
+                    unsafe_allow_html=True,
                 )
-            else:
-                status_placeholder.empty()
-                st.success("Plan generated")
 
-                def render_card(title: str, items: list[str]) -> None:
-                    list_html = "".join(f"<li>{html.escape(item)}</li>" for item in items)
-                    st.markdown(
-                        (
-                            "<div class='glass-card'>"
-                            f"<div class='card-title'>{html.escape(title)}</div>"
-                            f"<ul class='card-list'>{list_html}</ul>"
-                            "</div>"
-                        ),
-                        unsafe_allow_html=True,
-                    )
+            render_card("Agenda", plan.get("agenda", []))
+            render_card("Checklist", plan.get("checklist", []))
+            render_card("Timeline", plan.get("timeline", []))
 
-                render_card("Agenda", plan.get("agenda", []))
-                render_card("Checklist", plan.get("checklist", []))
-                render_card("Timeline", plan.get("timeline", []))
-
-                st.markdown("<div class='json-shell'>", unsafe_allow_html=True)
-                with st.expander("Raw JSON"):
-                    st.code(json.dumps(plan, indent=2, ensure_ascii=False), language="json")
-                st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("<div class='json-shell'>", unsafe_allow_html=True)
+            with st.expander("Raw JSON"):
+                st.code(json.dumps(plan, indent=2, ensure_ascii=False), language="json")
+            st.markdown("</div>", unsafe_allow_html=True)
+        finally:
+            st.session_state.is_generating = False
